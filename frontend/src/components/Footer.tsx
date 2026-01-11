@@ -11,13 +11,16 @@ export default function Footer() {
             <footer className="bg-slate-900 text-slate-300 py-12 border-t-4 border-amber-600">
                 <div className="container mx-auto px-6 lg:px-12">
                     <div>
-                        <div className="space-y-4">
-                            <h2 className="text-2xl font-bold text-white uppercase tracking-wider">
+                        <div className="py-6">
+                            <a href="https://alphasoft.com.ve/">
+                                <img src="src/assets/logo-alpha.png" className="w-60 pr-12" alt="Logotipo de AlphaSoft" />
+                            </a>
+                            <a href="https://www.foodmartcafe.com">
                                 <img src="src/assets/logo.png" className="w-40" alt="Logotipo de FoodMartCafe" />
-                            </h2>
+                            </a>
                         </div>
-                        <div>
-                            <p className="text-xs text-slate-500 flex justify-center">
+                        <div className="flex justify-center">
+                            <p className="text-xs text-slate-500">
                                 © {new Date().getFullYear()} AlphaSoft. Todos los derechos reservados.
                             </p>
                         </div>

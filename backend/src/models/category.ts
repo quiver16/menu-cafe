@@ -1,20 +1,20 @@
 import mongoose, { Schema } from "mongoose";
 
 interface ICategory {
-    id: string;
-    Name: string;
+    Codp: string;
     Descripcion: string;
+    Info: string;
+    Descuento: number;
+    Cocina: string;
+    Image: string;
+    ImageFs: string;
+    CreatedBy: Date;
+    UpdatedBy: Date;
     CreatedAt: Date;
-    UpdatedAt: Date;
 }
 
 const categorySchema = new Schema({
-    id: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    Name: {
+    Codp: {
         type: String,
         required: true,
         unique: true
@@ -23,6 +23,40 @@ const categorySchema = new Schema({
         type: String,
         required: true,
         unique: true
+    },
+    Info: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    Descuento: {
+        type: Number,
+        required: true,
+        unique: true
+    },
+    Cocina: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Cocinas",
+        required: true,
+        unique: true
+    },
+    Image: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    ImageFs: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    CreatedBy: {
+        type: Date,
+        required: true,
+    },
+    UpdatedBy: {
+        type: Date,
+        required: true,
     },
     CreatedAt: {
         type: Date,
@@ -35,6 +69,6 @@ const categorySchema = new Schema({
 });
 
 
-const Category = mongoose.model<ICategory>("Category", categorySchema);
+const Categoria = mongoose.model<ICategory>("Categoria", categorySchema);
 
-export default Category;
+export default Categoria;
