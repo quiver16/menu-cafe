@@ -11,6 +11,7 @@ export const corsConfig: CorsOptions = {
         if (whiteList.includes(origin)) {
             callback(null, true)
         } else {
+            console.log("Origin rejected by CORS:", origin);
             callback(new Error("No permitido"))
         }
     }
