@@ -1,6 +1,24 @@
 import { Outlet } from "react-router-dom";
 import { Toaster } from "sonner";
+import { useEffect, useState } from "react";
+import api from "../../config/axios";
 
+const CategoriesList = () => {
+  const [categories, setCategories] = useState([])
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await api.get('/categories');
+        setCategories(res.data);
+      } catch (error) {
+        console.error("No se pudieron cargar las categorías", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+}
 
 
 export default function Header() {
