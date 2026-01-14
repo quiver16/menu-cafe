@@ -1,16 +1,13 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
 import MenuContainer from "./MenuContainer";
+import AppLayout from "./layouts/AppLayout";
 
 export default function Router() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<Footer />}>
-          <Route path="/" element={<Header />}>
-            <Route index element={<MenuContainer />} />
-          </Route>
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<MenuContainer />} />
         </Route>
       </Routes>
     </BrowserRouter>
