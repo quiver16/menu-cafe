@@ -4,11 +4,11 @@ import { Outlet } from "react-router-dom";
 export default function AppLayout() {
   return (
     <div className="bg-amber-900 min-h-screen flex flex-col">
-      <header className="max-w-sm mx-auto pt-10 px-5">
+      <header className="w-52 mx-auto pt-10 px-5">
         <img src="src/assets/logo.png" alt="Logotipo de FoodMartCafe" />
       </header>
 
-      <main className="flex-grow container mx-auto max-w-sm px-5">
+      <main className=" bg-amber-900 flex-grow container mx-auto max-w-sm px-5">
         <Outlet />
       </main>
 

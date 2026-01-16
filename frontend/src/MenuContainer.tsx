@@ -1,14 +1,33 @@
 import { useEffect, useState } from "react";
+import {
+  ChevronDown,
+  ChevronUp,
+  CakeSlice,
+  Coffee,
+  GlassWater,
+  CupSoda,
+  EggFried,
+  UtensilsCrossed,
+  Pizza,
+  Leaf,
+  PlusCircle,
+  Milk,
+} from "lucide-react";
+
 import api from "../config/axios";
 
 interface Categoria {
   _id: string;
   Descripcion: string;
+  Codp: string;
 }
 
 interface Producto {
   _id: string;
   Descrip: string;
+  Informacion: string;
+  Categoria: string;
+  ImageFs: string;
   Precios: {
     PrecioFinal: number;
   }[];
@@ -16,69 +35,123 @@ interface Producto {
 
 export default function MenuContainer() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const { data } = await api.get("/categories");
-        setCategorias(data);
-      } catch (error) {
-        console.error("No se pudieron cargar las categorías", error);
-      }
-    };
-
-    fetchCategories();
-  }, []);
-
   const [products, setProducts] = useState<Producto[]>([]);
+  const [CategoriaAbierta, setCategoriaAbierta] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
-        const { data } = await api.get("/products");
-        setProducts(data);
+        const [categoriesResponse, productsResponse] = await Promise.all([
+          api.get("/categories"),
+          api.get("/products"),
+        ]);
+
+        const regexFmc = /\b(FMC|PF)\b/gi;
+        const productosLimpios = productsResponse.data.map(
+          (product: Producto) => ({
+            ...product,
+            Descrip: product.Descrip.replace(regexFmc, "").trim(),
+          })
+        );
+        setCategorias(categoriesResponse.data);
+        setProducts(productosLimpios);
       } catch (error) {
-        console.error("No se pudieron cargar los productos", error);
+        console.error("Error al cargar datos:", error);
       }
     };
 
-    fetchProducts();
+    fetchData();
   }, []);
 
+  const toggleCategoria = (categoriaId: string) => {
+    setCategoriaAbierta(categoriaId === CategoriaAbierta ? null : categoriaId);
+  };
+
+  const getCategoryIcon = (descripcion: string) => {
+    if (descripcion.includes("POSTRES")) return <CakeSlice />;
+    if (descripcion.includes("CAFES")) return <Coffee />;
+    if (descripcion.includes("BEBIDAS")) return <GlassWater />;
+    if (descripcion.includes("JUGOS")) return <CupSoda />;
+    if (descripcion.includes("DESAYUNOS")) return <EggFried />;
+    if (descripcion.includes("ALMUERZOS")) return <UtensilsCrossed />;
+    if (descripcion.includes("COMIDA RAPIDA")) return <Pizza />;
+    if (descripcion.includes("TE NATURAL")) return <Leaf />;
+    if (descripcion.includes("ADICIONALES")) return <PlusCircle />;
+    if (descripcion.includes("BATIDOS")) return <Milk />;
+    return <UtensilsCrossed />;
+  };
   return (
-    <>
-      <div className="pb-10">
-        <ul className="flex flex-col gap-4 mt-8 mb-10">
-          {categorias.map((categoria) => (
-            <li
-              key={categoria._id}
-              className="text-amber-50 flex items-center gap-2"
+    <div className="pb-10 px-4 pt-8">
+      {categorias.map((categoria) => {
+        CategoriaAbierta === categoria._id;
+        return (
+          <div key={categoria._id} className="mb-12">
+            <button
+              onClick={() => toggleCategoria(categoria._id)}
+              className="w-full text-amber-50 flex items-center justify-between gap-4 mb-6 hover:cursor-pointer group transition-colors"
             >
-              <span className="text-amber-500/50 text-4xl font-light">~</span>
-              <span className="text-3xl font-['Playball'] tracking-wide hover:text-amber-600 transition-colors cursor-default lowercase first-letter:uppercase">
-                {categoria.Descripcion}
-              </span>
-            </li>
-          ))}
-        </ul>
-        <div className="flex flex-col gap-4">
-          {products.map((product) => (
-            <div
-              key={product._id}
-              className="flex flex-col gap-2 rounded-lg border-amber-600 border-2 p-4 bg-white shadow-lg"
-            >
-              <div className="flex justify-between items-baseline">
-                <h2 className="text-2xl font-light text-black ">
-                  {product.Descrip}
-                </h2>
-                <span className="text-xl font-light text-black flex justify-end">
-                  ${product.Precios[0]?.PrecioFinal.toFixed(2)}
+              <div className="flex items-center gap-3">
+                <div className="text-amber-500/80 group-hover:text-amber-400 transition-colors">
+                  {getCategoryIcon(categoria.Descripcion)}
+                </div>
+                <span className="text-3xl font-[poppins] font-bold tracking-wide text-left">
+                  {categoria.Descripcion}
                 </span>
               </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </>
+
+              <div className="text-amber-500/50 group-hover:text-amber-400 transition-colors">
+                {CategoriaAbierta === categoria._id ? (
+                  <ChevronUp className="w-8 h-8" />
+                ) : (
+                  <ChevronDown className="w-8 h-8" />
+                )}
+              </div>
+            </button>
+
+            {CategoriaAbierta === categoria._id && (
+              <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                {products
+                  .filter((product) => product.Categoria === categoria.Codp)
+                  .map((product) => (
+                    <div
+                      key={product._id}
+                      className="flex flex-col gap-3 rounded-xl border-amber-600/30 border p-5 bg-white shadow-md hover:shadow-xl transition-shadow"
+                    >
+                      <div className="flex gap-4">
+                        {product.ImageFs && (
+                          <div className="shrink-0">
+                            <img
+                              src={`data:image/png;base64,${product.ImageFs}`}
+                              alt={product.Descrip}
+                              loading="lazy"
+                              className="w-24 h-24 object-cover rounded-lg shadow-sm"
+                            />
+                          </div>
+                        )}
+                        <div className="flex flex-col gap-1 flex-1">
+                          <h2 className="text-xl font-medium text-gray-900">
+                            {product.Descrip}
+                          </h2>
+                          {product.Informacion && (
+                            <p className="text-sm text-gray-500 leading-relaxed">
+                              {product.Informacion}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end items-baseline mt-1">
+                        <span className="text-xl font-bold text-amber-700">
+                          ${product.Precios[0]?.PrecioFinal.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
   );
 }
