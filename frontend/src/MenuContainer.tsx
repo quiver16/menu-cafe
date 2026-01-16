@@ -37,13 +37,15 @@ export default function MenuContainer() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [products, setProducts] = useState<Producto[]>([]);
   const [CategoriaAbierta, setCategoriaAbierta] = useState<string | null>(null);
+  const [dolar, setDolar] = useState<number>(0);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [categoriesResponse, productsResponse] = await Promise.all([
+        const [categoriesResponse, productsResponse, dolarResponse] = await Promise.all([
           api.get("/categories"),
           api.get("/products"),
+          api.get("https://ve.dolarapi.com/v1/dolares/oficial")
         ]);
 
         const regexFmc = /\b(FMC|PF)\b/gi;
@@ -55,6 +57,7 @@ export default function MenuContainer() {
         );
         setCategorias(categoriesResponse.data);
         setProducts(productosLimpios);
+        setDolar(dolarResponse.data);
       } catch (error) {
         console.error("Error al cargar datos:", error);
       }
@@ -143,6 +146,9 @@ export default function MenuContainer() {
                       <div className="flex justify-end items-baseline mt-1">
                         <span className="text-xl font-bold text-amber-700">
                           ${product.Precios[0]?.PrecioFinal.toFixed(2)}
+                        </span>
+                        <span className="text-xl font-bold text-amber-700">
+                          Bs. {(product.Precios[0]?.PrecioFinal * dolar).toFixed(2)}
                         </span>
                       </div>
                     </div>
