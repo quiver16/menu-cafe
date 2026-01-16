@@ -12,7 +12,7 @@ export default function AppLayout() {
         <Outlet />
       </main>
 
-      <footer className="bg-slate-900 text-slate-300 py-12 border-t-4 border-amber-600 mt-10">
+      <footer className="bg-slate-700 text-slate-300 py-12 border-t-4 border-amber-600 mt-10">
         <div className="container mx-auto px-6 lg:px-12">
           <div>
             <div className="flex items-center space-x-4">
