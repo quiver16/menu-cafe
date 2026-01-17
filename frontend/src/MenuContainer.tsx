@@ -55,7 +55,7 @@ export default function MenuContainer() {
           (product: Producto) => ({
             ...product,
             Descrip: product.Descrip.replace(regexFmc, "").trim(),
-          })
+          }),
         );
         setCategorias(categoriesResponse.data);
         setProducts(productosLimpios);
