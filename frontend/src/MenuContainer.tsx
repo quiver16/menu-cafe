@@ -26,6 +26,7 @@ interface Categoria {
 interface Producto {
   _id: string;
   Descrip: string;
+  Codp: string;
   Informacion: string;
   Categoria: string;
   ImageFs: string;
@@ -47,9 +48,8 @@ export default function MenuContainer() {
           await Promise.all([
             api.get("/categories"),
             api.get("/products"),
-            api.get("https://ve.dolarapi.com/v1/dolares/oficial"),
+            api.get("/dolar"),
           ]);
-
         const regexFmc = /\b(FMC|PF)\b/gi;
         const productosLimpios = productsResponse.data.map(
           (product: Producto) => ({
@@ -59,7 +59,10 @@ export default function MenuContainer() {
         );
         setCategorias(categoriesResponse.data);
         setProducts(productosLimpios);
-        setDolar(dolarResponse.data.promedio);
+
+        if (dolarResponse.data && dolarResponse.data.length > 0) {
+          setDolar(dolarResponse.data[0].Factor);
+        }
       } catch (error) {
         console.error("Error al cargar datos:", error);
       }
@@ -143,13 +146,15 @@ export default function MenuContainer() {
                       .map((product) => (
                         <div
                           key={product._id}
-                          className="flex flex-col gap-3 rounded-xl border-amber-600/30 border p-5 bg-white shadow-md hover:shadow-xl transition-shadow"
+                          className="flex flex-col gap-3 rounded-2xl border-amber-600/30 border p-5 bg-white shadow-md hover:shadow-xl transition-shadow"
                         >
                           <div className="flex gap-4 items-center">
                             {product.ImageFs && (
                               <div className="shrink-0">
                                 <img
-                                  src={`data:image/png;base64,${product.ImageFs}`}
+                                  src={`${
+                                    import.meta.env.VITE_BACKEND_URL
+                                  }/image/${product.Codp}`}
                                   alt={product.Descrip}
                                   loading="lazy"
                                   className="w-24 h-24 object-cover rounded-lg shadow-sm"
@@ -185,6 +190,7 @@ export default function MenuContainer() {
                 </motion.div>
               )}
             </AnimatePresence>
+            <div className="w-[90%] h-px bg-amber-200/20 mt-6" />
           </div>
         );
       })}
