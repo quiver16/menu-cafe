@@ -6,7 +6,7 @@ import headerImg from "../assets/header.jpg";
 export default function AppLayout() {
   return (
     <div
-      className="min-h-screen flex flex-col bg-cover bg-center bg-no-repeat bg-fixed"
+      className="min-h-screen flex flex-col bg-cover bg-center bg-no-repeat bg-fixed position-fixed"
       style={{
         backgroundImage: `linear-gradient(
           rgba(0, 0, 0, 0.4),
