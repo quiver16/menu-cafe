@@ -13,6 +13,9 @@ import {
   Leaf,
   PlusCircle,
   Milk,
+  Minus,
+  Send,
+  Trash2,
 } from "lucide-react";
 
 import api from "../config/axios";
@@ -42,6 +45,60 @@ export default function MenuContainer() {
   const [CategoriaAbierta, setCategoriaAbierta] = useState<string | null>(null);
   const [dolar, setDolar] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
+
+  const updateQuantity = (productId: string, delta: number) => {
+    setQuantities((prev) => {
+      const current = prev[productId] || 0;
+      const next = Math.max(0, current + delta);
+      const newQuantities = { ...prev };
+      if (next === 0) {
+        delete newQuantities[productId];
+      } else {
+        newQuantities[productId] = next;
+      }
+      return newQuantities;
+    });
+  };
+
+  const handleSendOrder = () => {
+    const orderItems = products
+      .filter((p) => quantities[p._id])
+      .map((p) => ({
+        ...p,
+        qty: quantities[p._id],
+      }));
+
+    if (orderItems.length === 0) return;
+
+    let message = "*¡Hola! Quisiera realizar el siguiente pedido:*\n\n";
+    let total = 0;
+
+    orderItems.forEach((item) => {
+      const price = item.Precios[0]?.PrecioFinal || 0;
+      const subtotal = price * item.qty;
+      message += `• ${item.qty}x ${item.Descrip} - $${subtotal.toFixed(2)}\n`;
+      total += subtotal;
+    });
+
+    message += `\n*Total: $${total.toFixed(2)}*`;
+    message += `\n*Total: Bs: ${(total * dolar).toFixed(2)}*`;
+
+    const phone = import.meta.env.VITE_WHATSAPP_NUMBER;
+    if (!phone) {
+      alert("Número de WhatsApp no configurado en .env.local");
+      return;
+    }
+
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    window.open(url);
+  };
+
+  const clearOrders = () => {
+    if (window.confirm("¿Estás seguro de querer borrar toda la orden?")) {
+      setQuantities({});
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -182,16 +239,37 @@ export default function MenuContainer() {
                             </p>
                           )}
 
-                          <div className="flex justify-between items-baseline mt-1">
-                            <span className="text-xl font-bold text-amber-700">
-                              ${product.Precios[0]?.PrecioFinal.toFixed(2)}
-                            </span>
-                            <span className="text-xl font-bold text-amber-700">
-                              Bs.{" "}
-                              {(
-                                product.Precios[0]?.PrecioFinal * dolar
-                              ).toFixed(2)}
-                            </span>
+                          <div className="flex justify-between items-end mt-2">
+                            <div className="flex flex-col">
+                              <span className="text-xl font-bold text-amber-700">
+                                ${product.Precios[0]?.PrecioFinal.toFixed(2)}
+                              </span>
+                              <span className="text-sm font-medium text-amber-700/70">
+                                Bs.{" "}
+                                {(
+                                  product.Precios[0]?.PrecioFinal * dolar
+                                ).toFixed(2)}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-3 bg-amber-50 rounded-lg p-1 border border-amber-200">
+                              <button
+                                onClick={() => updateQuantity(product._id, -1)}
+                                disabled={!quantities[product._id]}
+                                className="p-1 rounded-md hover:bg-amber-200 text-amber-700 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                              >
+                                <Minus className="w-5 h-5" />
+                              </button>
+                              <span className="w-4 text-center font-bold text-gray-800">
+                                {quantities[product._id] || 0}
+                              </span>
+                              <button
+                                onClick={() => updateQuantity(product._id, 1)}
+                                className="p-1 rounded-md hover:bg-amber-200 text-amber-700 transition-colors"
+                              >
+                                <PlusCircle className="w-5 h-5" />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -203,6 +281,35 @@ export default function MenuContainer() {
           </div>
         );
       })}
+      {Object.keys(quantities).length > 0 && (
+        <div className="fixed bottom-6 left-0 right-0 px-4 z-50 flex justify-center gap-4">
+          <button
+            onClick={clearOrders}
+            className="bg-red-500 hover:bg-red-600 text-white font-bold p-3 rounded-full shadow-lg flex items-center justify-center transition-all transform hover:scale-105 active:scale-95"
+            aria-label="Borrar orden"
+          >
+            <Trash2 className="w-5 h-5" />
+          </button>
+          <button
+            onClick={handleSendOrder}
+            className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg flex items-center gap-3 transition-all transform hover:scale-105 active:scale-95"
+          >
+            <Send className="w-5 h-5" />
+            <span>
+              Realizar Pedido ($
+              {products
+                .reduce(
+                  (acc, p) =>
+                    acc +
+                    (p.Precios[0]?.PrecioFinal || 0) * (quantities[p._id] || 0),
+                  0,
+                )
+                .toFixed(2)}
+              )
+            </span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }
