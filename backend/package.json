@@ -2,12 +2,14 @@
   "name": "menucafe",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
+"main": "dist/index.js",
+"type": "module",  
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/index.ts",
     "dev:api": "tsx watch src/index.ts --api",
-    "build": "tsc"
+    "build": "tsc",
+    "start": "node dist/index.js"
   },
   "author": "Jose Diaz",
   "license": "ISC",

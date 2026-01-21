@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import productosgenerals from "../models/product";
-import Categoria from "../models/category";
-import monedas from "../models/currency";
+import productosgenerals from "../models/product.js";
+import Categoria from "../models/category.js";
+import monedas from "../models/currency.js";
 
 export const getProducts = async (req: Request, res: Response) => {
 

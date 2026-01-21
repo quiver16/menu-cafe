@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 import api from "../config/axios";
+import Loader from "./components/Loader";
 
 interface Categoria {
   _id: string;
@@ -40,6 +41,7 @@ export default function MenuContainer() {
   const [products, setProducts] = useState<Producto[]>([]);
   const [CategoriaAbierta, setCategoriaAbierta] = useState<string | null>(null);
   const [dolar, setDolar] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -65,6 +67,8 @@ export default function MenuContainer() {
         }
       } catch (error) {
         console.error("Error al cargar datos:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -99,6 +103,11 @@ export default function MenuContainer() {
     if (descripcion.includes("BATIDOS")) return <Milk />;
     return <UtensilsCrossed />;
   };
+
+  if (loading) {
+    return <Loader />;
+  }
+
   return (
     <div className="pb-10 px-4 pt-8">
       {categorias.map((categoria) => {
