@@ -7,18 +7,7 @@ export const getProducts = async (req: Request, res: Response) => {
 
     try {
         const products = await productosgenerals.find({ Categoria: { $exists: true, $ne: "" } }).select({ Descrip: 1, Informacion: 1, Categoria: 1, Precios: { PrecioFinal: 1 }, Codp: 1, ImageFs: 1 });
-        
-        const productsImages = products.map((product) => {
-            const productObj = product.toObject() as any;
-            if (productObj.ImageFs && productObj.ImageFs.data) {
-                productObj.ImageFs = true;
-            } else {
-                productObj.ImageFs = false;
-            }
-            return productObj;
-        });
-
-        res.status(200).json(productsImages);
+        res.status(200).json(products);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
