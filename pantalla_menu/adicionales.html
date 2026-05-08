@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionales - Menú Digital TV - FoodMartCafe</title>
+
+    <link rel="preconnect" href="https://menu.foodmartcafe.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
+
+    <link rel="preload" as="image" href="https://menu.foodmartcafe.com/src/assets/logo.png">
+    <link rel="preload" as="image" href="https://menu.foodmartcafe.com/assets/header-B4FAaQ7D.jpg">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            overflow: hidden;
+        }
+
+        .scroll-mask {
+            -webkit-mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
+            mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
+        }
+
+        .loader-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: #000;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+        .spinner {
+            border: 4px solid rgba(245, 158, 11, 0.3);
+            border-top: 4px solid #f59e0b;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+
+<body class="bg-black text-slate-100 font-sans h-screen flex flex-col relative">
+
+    <div id="loader" class="loader-overlay">
+        <div class="spinner mb-6"></div>
+        <h2 class="text-3xl font-bold text-amber-500 tracking-widest uppercase">Cargando Adicionales...</h2>
+    </div>
+
+    <div class="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10"
+         style="background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://menu.foodmartcafe.com/assets/fondo1-DSz8KEwl.png');">
+    </div>
+
+    <header class="w-full shrink-0 z-50 shadow-2xl relative flex items-center justify-center py-6">
+        <div class="absolute inset-0 overflow-hidden">
+            <img alt="Header FoodMart" class="w-full h-full object-cover" src="https://menu.foodmartcafe.com/assets/header-B4FAaQ7D.jpg" loading="eager">
+            <div class="absolute inset-0 bg-black/50"></div>
+        </div>
+        <div class="w-72 relative z-10 px-5 flex justify-center">
+            <img alt="Logotipo FoodMartCafe" class="w-full h-auto drop-shadow-xl" src="https://menu.foodmartcafe.com/src/assets/logo.png">
+        </div>
+    </header>
+
+    <main class="flex-grow relative overflow-hidden scroll-mask mt-6 mb-4 mx-8">
+        <div id="menu-scroll-wrapper" class="absolute w-full top-0 left-0">
+            <div id="menu-container" class="max-w-[1600px] mx-auto pb-24 pt-4">
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const BACKEND_URL = 'https://menu.foodmartcafe.com';
+        const CATEGORY_CODE = 'ADICIONAL';
+        const CACHE_TTL = 5 * 60 * 1000;
+
+        async function fetchWithCache(url) {
+            const cacheEntry = JSON.parse(localStorage.getItem(url) || 'null');
+            if (cacheEntry && (Date.now() - cacheEntry.ts < CACHE_TTL)) {
+                return cacheEntry.data;
+            }
+            const data = await fetch(url).then(r => r.json());
+            localStorage.setItem(url, JSON.stringify({ ts: Date.now(), data }));
+            return data;
+        }
+
+        async function init() {
+            try {
+                const [productsRes, dolarRes] = await Promise.all([
+                    fetchWithCache(`${BACKEND_URL}/products`),
+                    fetchWithCache(`${BACKEND_URL}/dolar`)
+                ]);
+
+                const dolar = dolarRes[0]?.Factor || 0;
+                const container = document.getElementById('menu-container');
+                const loader = document.getElementById('loader');
+
+                const regexFmc = /\b(FMC|PF)\b/gi;
+
+                const filteredProducts = productsRes.filter(p =>
+                    p.Categoria === CATEGORY_CODE && p.Categoria !== '000009'
+                );
+
+                filteredProducts.sort((a, b) => a.Descrip.localeCompare(b.Descrip));
+
+                const productsHTML = filteredProducts.map(product => {
+                    const cleanDescrip = product.Descrip.replace(regexFmc, '').trim();
+                    const priceUSD = product.Precios[0]?.PrecioFinal || 0;
+                    const priceBS = (priceUSD * dolar).toFixed(2);
+                    const imageUrl = product.ImageFs
+                        ? `${BACKEND_URL}/image/${product.Codp}`
+                        : 'https://via.placeholder.com/200?text=FoodMart';
+
+                    return `
+                        <div class="bg-amber-950/80 backdrop-blur-md border border-amber-600/40 rounded-2xl p-6 flex gap-6 items-center shadow-xl mb-8">
+                            <img src="${imageUrl}" alt="${cleanDescrip}" class="w-40 h-40 object-cover rounded-xl bg-black shadow-lg shrink-0" loading="lazy">
+                            <div class="flex-1 flex flex-col justify-between h-full">
+                                <div>
+                                    <h3 class="text-3xl font-bold text-white leading-tight mb-2">${cleanDescrip}</h3>
+                                    <p class="text-xl text-slate-300 line-clamp-2 leading-snug">${product.Informacion || ''}</p>
+                                </div>
+                                <div class="mt-4 flex items-end justify-between">
+                                    <span class="text-4xl font-bold text-amber-500 drop-shadow-md">$${priceUSD.toFixed(2)}</span>
+                                    <span class="text-2xl font-medium text-amber-400/60">Bs. ${priceBS}</span>
+                                </div>
+                            </div>
+                        </div>`;
+                }).join('');
+
+                container.innerHTML = `
+                    <div class="flex items-center gap-4 mb-8 border-b-2 border-amber-600/30 pb-4">
+                        <div class="text-amber-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c2.7 2.7 6 2.7 8.7 0L21 15"/><path d="m3 21 5.8-5.8"/><path d="m15 9 5.8-5.8"/></svg>
+                        </div>
+                        <h2 class="text-4xl font-bold text-amber-50 tracking-wider">Adicionales</h2>
+                    </div>
+                    <div class="grid grid-cols-2 gap-8">${productsHTML}</div>`;
+
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 500);
+
+                startAutoScroll();
+            } catch (error) {
+                console.error('Error al cargar datos:', error);
+                document.getElementById('loader').innerHTML = '<h2 class="text-3xl font-bold text-red-500">Error conectando al servidor. Reintentando...</h2>';
+                setTimeout(init, 5000);
+            }
+        }
+
+        function startAutoScroll() {
+            const wrapper = document.getElementById('menu-scroll-wrapper');
+            const mainArea = document.querySelector('main');
+
+            let scrollY = 0;
+            const scrollSpeed = 0.6;
+
+            function step() {
+                scrollY -= scrollSpeed;
+                const wrapperHeight = wrapper.offsetHeight;
+                const viewportHeight = mainArea.offsetHeight;
+                if (Math.abs(scrollY) >= wrapperHeight) {
+                    scrollY = viewportHeight;
+                }
+                wrapper.style.transform = `translateY(${scrollY}px)`;
+                requestAnimationFrame(step);
+            }
+
+            setTimeout(() => {
+                requestAnimationFrame(step);
+            }, 3000);
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,7 +1,9 @@
 import { Toaster } from "sonner";
 import { Outlet } from "react-router-dom";
-import bgImage from "../assets/fondo1.png";
-import headerImg from "../assets/header.jpg";
+import bgImage from "../assets/fondo1.webp";
+import headerImg from "../assets/header.webp";
+import logoImg from "../assets/logo.webp";
+import logoAlphaImg from "../assets/logo-alpha.webp";
 
 export default function AppLayout() {
   return (
@@ -20,20 +22,21 @@ export default function AppLayout() {
           <img
             src={headerImg}
             alt="Header FoodMart"
+            fetchPriority="high"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-black/20"></div>
         </div>
         <div className="w-52 mx-auto -mt-20 relative z-10 px-5">
           <img
-            src="src/assets/logo.png"
+            src={logoImg}
             alt="Logotipo de FoodMartCafe"
             className="drop-shadow-xl"
           />
         </div>
       </header>
 
-      <main className="flex-grow container mx-auto max-w-sm px-5">
+      <main className="flex-grow container mx-auto max-w-sm lg:max-w-7xl px-5">
         <Outlet />
       </main>
 
@@ -43,14 +46,16 @@ export default function AppLayout() {
             <div className="flex items-center space-x-4">
               <a href="https://alphasoft.com.ve/" target="_blank">
                 <img
-                  src="src/assets/logo-alpha.png"
+                  src={logoAlphaImg}
+                  loading="lazy"
                   className="w-60"
                   alt="Logotipo de AlphaSoft"
                 />
               </a>
               <a href="https://www.foodmartcafe.com" target="_blank">
                 <img
-                  src="src/assets/logo.png"
+                  src={logoImg}
+                  loading="lazy"
                   className="w-40"
                   alt="Logotipo de FoodMartCafe"
                 />

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Digital TV - FoodMartCafe</title>
+
+    <!-- Preconnect: adelanta handshake con servidores externos -->
+    <link rel="preconnect" href="https://menu.foodmartcafe.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
+
+    <!-- Preload: carga anticipada de imágenes críticas (above the fold) -->
+    <link rel="preload" as="image" href="https://menu.foodmartcafe.com/src/assets/logo.png">
+    <link rel="preload" as="image" href="https://menu.foodmartcafe.com/assets/header-B4FAaQ7D.jpg">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { display: none; }
+        body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            overflow: hidden;
+        }
+
+        .scroll-mask {
+            -webkit-mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
+            mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
+        }
+
+        .loader-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: #000;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+        .spinner {
+            border: 4px solid rgba(245, 158, 11, 0.3);
+            border-top: 4px solid #f59e0b;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+
+<body class="bg-black text-slate-100 font-sans h-screen flex flex-col relative">
+
+    <div id="loader" class="loader-overlay">
+        <div class="spinner mb-6"></div>
+        <h2 class="text-3xl font-bold text-amber-500 tracking-widest uppercase">Cargando Menú...</h2>
+    </div>
+
+    <div class="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10" 
+         style="background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://menu.foodmartcafe.com/assets/fondo1-DSz8KEwl.png');">
+    </div>
+
+    <header class="w-full shrink-0 z-50 shadow-2xl relative flex items-center justify-center py-6">
+        <div class="absolute inset-0 overflow-hidden">
+            <img alt="Header FoodMart" class="w-full h-full object-cover" src="https://menu.foodmartcafe.com/assets/header-B4FAaQ7D.jpg" loading="eager">
+            <div class="absolute inset-0 bg-black/50"></div>
+        </div>
+        <div class="w-72 relative z-10 px-5 flex justify-center">
+            <img alt="Logotipo FoodMartCafe" class="w-full h-auto drop-shadow-xl" src="https://menu.foodmartcafe.com/src/assets/logo.png">
+        </div>
+    </header>
+
+    <main class="flex-grow relative overflow-hidden scroll-mask mt-6 mb-4 mx-8">
+        <div id="menu-scroll-wrapper" class="absolute w-full top-0 left-0">
+            <div id="menu-container" class="max-w-[1600px] mx-auto pb-24 pt-10">
+                </div>
+        </div>
+    </main>
+
+    <script>
+        const BACKEND_URL = 'https://menu.foodmartcafe.com'; 
+
+        const icons = {
+            cake: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 13H3"/><path d="M16 17H3"/><path d="m7.2 7.9-3.388 2.5A2 2 0 0 0 3 12.01V20a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-8.654c0-2-2.44-6.026-6.44-8.026a1 1 0 0 0-1.082.057L10.4 5.6"/><circle cx="9" cy="7" r="2"/></svg>`,
+            coffee: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></svg>`,
+            drink: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 8 5.8 5.8a2.83 2.83 0 0 0 4 0 2.83 2.83 0 0 0 0-4L10 4"/><path d="M15.2 16.9V21"/><path d="M11.6 13.3V21"/><path d="M18.8 13.3V21"/><path d="M8 9.6V21"/><path d="M3 21h18"/></svg>`,
+            food: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c2.7 2.7 6 2.7 8.7 0L21 15"/><path d="m3 21 5.8-5.8"/><path d="m15 9 5.8-5.8"/></svg>`,
+            leaf: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>`
+        };
+
+        function getCategoryIcon(descripcion) {
+            const desc = descripcion.toUpperCase();
+            if (desc.includes("POSTRES")) return icons.cake;
+            if (desc.includes("CAFES") || desc.includes("CAFÉ")) return icons.coffee;
+            if (desc.includes("BEBIDAS") || desc.includes("JUGOS") || desc.includes("BATIDOS")) return icons.drink;
+            if (desc.includes("TE NATURAL")) return icons.leaf;
+            return icons.food; 
+        }
+
+        // Caché con localStorage (TTL: 5 minutos)
+        const CACHE_TTL = 5 * 60 * 1000;
+
+        async function fetchWithCache(url) {
+            const cacheEntry = JSON.parse(localStorage.getItem(url) || 'null');
+            if (cacheEntry && (Date.now() - cacheEntry.ts < CACHE_TTL)) {
+                return cacheEntry.data;
+            }
+            const data = await fetch(url).then(r => r.json());
+            localStorage.setItem(url, JSON.stringify({ ts: Date.now(), data }));
+            return data;
+        }
+
+        function renderCategory(categoria, catProducts, dolar, container) {
+            const regexFmc = /\b(FMC|PF)\b/gi;
+            const section = document.createElement('div');
+            section.className = 'mb-14';
+
+            let html = `
+                <div class="flex items-center gap-4 mb-8 border-b-2 border-amber-600/30 pb-4">
+                    <div class="text-amber-500">${getCategoryIcon(categoria.Descripcion)}</div>
+                    <h2 class="text-4xl font-bold text-amber-50 tracking-wider">${categoria.Descripcion}</h2>
+                </div>
+                <div class="grid grid-cols-2 gap-8">`;
+
+            catProducts.forEach(product => {
+                const cleanDescrip = product.Descrip.replace(regexFmc, '').trim();
+                const priceUSD = product.Precios[0]?.PrecioFinal || 0;
+                const priceBS = (priceUSD * dolar).toFixed(2);
+                const imageUrl = product.ImageFs ? `${BACKEND_URL}/image/${product.Codp}` : 'https://via.placeholder.com/200?text=FoodMart';
+
+                html += `
+                    <div class="bg-amber-950/80 backdrop-blur-md border border-amber-600/40 rounded-2xl p-6 flex gap-6 items-center shadow-xl">
+                        <img src="${imageUrl}" alt="${cleanDescrip}" class="w-40 h-40 object-cover rounded-xl bg-black shadow-lg shrink-0" loading="lazy">
+                        <div class="flex-1 flex flex-col justify-between h-full">
+                            <div>
+                                <h3 class="text-3xl font-bold text-white leading-tight mb-2">${cleanDescrip}</h3>
+                                <p class="text-xl text-slate-300 line-clamp-2 leading-snug">${product.Informacion || ''}</p>
+                            </div>
+                            <div class="mt-4 flex items-end justify-between">
+                                <span class="text-4xl font-bold text-amber-500 drop-shadow-md">$${priceUSD.toFixed(2)}</span>
+                                <span class="text-2xl font-medium text-amber-400/60">Bs. ${priceBS}</span>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+
+            html += '</div>';
+            section.innerHTML = html;
+            container.appendChild(section);
+        }
+
+        async function init() {
+            try {
+                const [categoriesRes, productsRes, dolarRes] = await Promise.all([
+                    fetchWithCache(`${BACKEND_URL}/categories`),
+                    fetchWithCache(`${BACKEND_URL}/products`),
+                    fetchWithCache(`${BACKEND_URL}/dolar`)
+                ]);
+
+                const dolar = dolarRes[0]?.Factor || 0;
+                const container = document.getElementById('menu-container');
+
+                // Ocultar loader antes de renderizar
+                const loader = document.getElementById('loader');
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 500);
+
+                // Renderizar categoría por categoría (progresivo)
+                categoriesRes.forEach(categoria => {
+                    const catProducts = productsRes.filter(p => p.Categoria === categoria.Codp);
+                    if (catProducts.length === 0) return;
+                    renderCategory(categoria, catProducts, dolar, container);
+                });
+
+                startAutoScroll();
+
+            } catch (error) {
+                console.error('Error al cargar datos:', error);
+                document.getElementById('loader').innerHTML = '<h2 class="text-3xl font-bold text-red-500">Error conectando al servidor. Reintentando...</h2>';
+                setTimeout(init, 5000);
+            }
+        }
+
+        function startAutoScroll() {
+            const wrapper = document.getElementById('menu-scroll-wrapper');
+            const mainArea = document.querySelector('main');
+            
+            let scrollY = 0;
+            const scrollSpeed = 0.6; // Velocidad del scroll
+
+            function step() {
+                scrollY -= scrollSpeed;
+                
+                const wrapperHeight = wrapper.offsetHeight;
+                const viewportHeight = mainArea.offsetHeight;
+
+                // Cuando el último elemento sube completamente, reiniciar desde abajo
+                if (Math.abs(scrollY) >= wrapperHeight) {
+                    scrollY = viewportHeight; 
+                }
+
+                wrapper.style.transform = `translateY(${scrollY}px)`;
+                requestAnimationFrame(step);
+            }
+
+            // Esperar 3 segundos antes de empezar a moverse
+            setTimeout(() => {
+                requestAnimationFrame(step);
+            }, 3000);
+        }
+
+        // Iniciar la app
+        init();
+    </script>
+</body>
+</html>
