@@ -1,21 +1,26 @@
 import { CorsOptions } from "cors";
 
-
 export const corsConfig: CorsOptions = {
     origin: function (origin, callback) {
-        const whiteList = [process.env.FRONTEND_URL, "http://10.200.100.89:5173", "http://10.200.100.155"]
+        const whiteList = [
+            process.env.FRONTEND_URL, 
+            "http://10.200.100.89:5173", 
+            "http://10.200.100.155",
+            "http://10.200.100.186:4080" // Agregado el nuevo puerto del frontend
+        ];
 
-        // Permitir si no hay origin (archivos locales), si está en la whitelist, 
-        // si es origin 'null', o si es cualquier variante de localhost
+        // Permitir si no hay origin (como herramientas de testeo), 
+        // si está en la whitelist, si es localhost o si coincide con la variable de entorno
         if (!origin || 
             whiteList.includes(origin) || 
-            origin === 'null' || 
             origin.includes('localhost') || 
             origin.includes('127.0.0.1')) {
-            callback(null, true)
+            callback(null, true);
         } else {
             console.log("Origin rejected by CORS:", origin);
-            callback(new Error("No permitido"))
+            // En lugar de devolver un error que cause un 500, simplemente no permitimos el origin
+            callback(null, false);
         }
-    }
+    },
+    credentials: true
 }
