@@ -24,9 +24,9 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 
 # Set environment variables (defaults)
-ENV PORT=4000
+ENV PORT=4010
 ENV NODE_ENV=production
 
-EXPOSE 4000
+EXPOSE 4010
 
 CMD ["npm", "start"]

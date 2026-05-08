@@ -6,11 +6,11 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "4000:4000"
+      - "4010:4010"
     environment:
       - MONGO_URI=${MONGO_URI}
       - FRONTEND_URL=${FRONTEND_URL}
-      - PORT=4000
+      - PORT=4010
     restart: always
 
   frontend:
