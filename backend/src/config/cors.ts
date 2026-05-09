@@ -6,7 +6,9 @@ export const corsConfig: CorsOptions = {
             process.env.FRONTEND_URL, 
             "http://10.200.100.89:5173", 
             "http://10.200.100.155",
-            "http://10.200.100.186:4080" // Agregado el nuevo puerto del frontend
+            "http://10.200.100.186:4080", // Agregado el nuevo puerto del frontend
+            "https://fc-menu.foodmartcafe.com", // Dominio de producción
+            "http://fc-menu.foodmartcafe.com"   // Dominio de producción (HTTP)
         ];
 
         // Permitir si no hay origin (como herramientas de testeo), 
