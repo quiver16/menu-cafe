@@ -14,6 +14,7 @@ export const corsConfig: CorsOptions = {
         // Permitir si no hay origin (como herramientas de testeo), 
         // si está en la whitelist, si es localhost o si coincide con la variable de entorno
         if (!origin || 
+            origin === 'null' ||
             whiteList.includes(origin) || 
             origin.includes('localhost') || 
             origin.includes('127.0.0.1')) {
