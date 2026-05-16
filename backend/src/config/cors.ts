@@ -7,8 +7,10 @@ export const corsConfig: CorsOptions = {
             "http://10.200.100.89:5173", 
             "http://10.200.100.155",
             "http://10.200.100.186:4080", // Agregado el nuevo puerto del frontend
-            "https://fc-menu.foodmartcafe.com", // Dominio de producción
-            "http://fc-menu.foodmartcafe.com"   // Dominio de producción (HTTP)
+            "https://api-menu.foodmartcafe.com", // Dominio de producción
+            "http://menu.foodmartcafe.com",   // Dominio de producción (HTTP)
+            "https://media-server.diosenticonfio.com", // alphaMedia (pantallas TV)
+            "http://media-server.diosenticonfio.com"
         ];
 
         // Permitir si no hay origin (como herramientas de testeo), 
