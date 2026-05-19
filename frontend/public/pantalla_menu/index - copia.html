@@ -12,8 +12,8 @@
     <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
 
     <!-- Preload: carga anticipada de imágenes críticas (above the fold) -->
-    <link rel="preload" as="image" href="https://menu.foodmartcafe.com/src/assets/logo.png">
-    <link rel="preload" as="image" href="https://menu.foodmartcafe.com/assets/header-B4FAaQ7D.jpg">
+    <link rel="preload" as="image" href="https://menu.foodmartcafe.com/logo.webp">
+    <link rel="preload" as="image" href="https://menu.foodmartcafe.com/header.webp">
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -74,16 +74,16 @@
     </div>
 
     <div class="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10" 
-         style="background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://menu.foodmartcafe.com/assets/fondo1-DSz8KEwl.png');">
+         style="background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://menu.foodmartcafe.com/fondo1.webp');">
     </div>
 
     <header class="w-full shrink-0 z-50 shadow-2xl relative flex items-center justify-center py-6">
         <div class="absolute inset-0 overflow-hidden">
-            <img alt="Header FoodMart" class="w-full h-full object-cover" src="https://menu.foodmartcafe.com/assets/header-B4FAaQ7D.jpg" loading="eager">
+            <img alt="Header FoodMart" class="w-full h-full object-cover" src="https://menu.foodmartcafe.com/header.webp" loading="eager">
             <div class="absolute inset-0 bg-black/50"></div>
         </div>
         <div class="w-72 relative z-10 px-5 flex justify-center">
-            <img alt="Logotipo FoodMartCafe" class="w-full h-auto drop-shadow-xl" src="https://menu.foodmartcafe.com/src/assets/logo.png">
+            <img alt="Logotipo FoodMartCafe" class="w-full h-auto drop-shadow-xl" src="https://menu.foodmartcafe.com/logo.webp">
         </div>
     </header>
 
@@ -95,7 +95,7 @@
     </main>
 
     <script>
-        const BACKEND_URL = 'https://menu.foodmartcafe.com'; 
+        const BACKEND_URL = 'https://api-menu.foodmartcafe.com'; 
 
         const icons = {
             cake: `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 13H3"/><path d="M16 17H3"/><path d="m7.2 7.9-3.388 2.5A2 2 0 0 0 3 12.01V20a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-8.654c0-2-2.44-6.026-6.44-8.026a1 1 0 0 0-1.082.057L10.4 5.6"/><circle cx="9" cy="7" r="2"/></svg>`,
@@ -123,7 +123,12 @@
                 return cacheEntry.data;
             }
             const data = await fetch(url).then(r => r.json());
-            localStorage.setItem(url, JSON.stringify({ ts: Date.now(), data }));
+            try {
+                localStorage.setItem(url, JSON.stringify({ ts: Date.now(), data }));
+            } catch (e) {
+                localStorage.clear();
+                try { localStorage.setItem(url, JSON.stringify({ ts: Date.now(), data })); } catch (_) {}
+            }
             return data;
         }
 

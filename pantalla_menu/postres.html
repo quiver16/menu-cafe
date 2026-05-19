@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Postres - Menú Digital TV - FoodMartCafe</title>
-    <link rel="preconnect" href="https://api-menu.foodmartcafe.com">
+    <link rel="preconnect" href="https://menu.foodmartcafe.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" as="image" href="https://api-menu.foodmartcafe.com/src/assets/logo.png">
-    <link rel="preload" as="image" href="https://api-menu.foodmartcafe.com/assets/header-B4FAaQ7D.jpg">
+    <link rel="preload" as="image" href="https://menu.foodmartcafe.com/logo.webp">
+    <link rel="preload" as="image" href="https://menu.foodmartcafe.com/header.webp">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Poppins', 'sans-serif'] } } } }</script>
@@ -29,14 +29,14 @@
         <div class="spinner mb-6"></div>
         <h2 class="text-3xl font-bold text-amber-500 tracking-widest uppercase">Cargando Postres...</h2>
     </div>
-    <div class="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10" style="background-image: linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)), url('https://api-menu.foodmartcafe.com/assets/fondo1-DSz8KEwl.png');"></div>
+    <div class="fixed inset-0 bg-cover bg-center bg-no-repeat -z-10" style="background-image: linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)), url('https://menu.foodmartcafe.com/fondo1.webp');"></div>
     <header class="w-full shrink-0 z-50 shadow-2xl relative flex items-center justify-center py-6">
         <div class="absolute inset-0 overflow-hidden">
-            <img alt="Header FoodMart" class="w-full h-full object-cover" src="https://api-menu.foodmartcafe.com/assets/header-B4FAaQ7D.jpg" loading="eager">
+            <img alt="Header FoodMart" class="w-full h-full object-cover" src="https://menu.foodmartcafe.com/header.webp" loading="eager">
             <div class="absolute inset-0 bg-black/50"></div>
         </div>
         <div class="w-72 relative z-10 px-5 flex justify-center">
-            <img alt="Logotipo FoodMartCafe" class="w-full h-auto drop-shadow-xl" src="https://api-menu.foodmartcafe.com/src/assets/logo.png">
+            <img alt="Logotipo FoodMartCafe" class="w-full h-auto drop-shadow-xl" src="https://menu.foodmartcafe.com/logo.webp">
         </div>
     </header>
     <main class="flex-grow relative overflow-hidden scroll-mask mt-6 mb-4 mx-8">
@@ -52,7 +52,12 @@
             const c = JSON.parse(localStorage.getItem(url) || 'null');
             if (c && (Date.now() - c.ts < CACHE_TTL)) return c.data;
             const data = await fetch(url).then(r => r.json());
-            localStorage.setItem(url, JSON.stringify({ ts: Date.now(), data }));
+            try {
+                localStorage.setItem(url, JSON.stringify({ ts: Date.now(), data }));
+            } catch (e) {
+                localStorage.clear();
+                try { localStorage.setItem(url, JSON.stringify({ ts: Date.now(), data })); } catch (_) {}
+            }
             return data;
         }
         async function init() {
