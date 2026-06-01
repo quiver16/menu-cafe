@@ -239,6 +239,9 @@ const ProductosGeneralSchema = new Schema<IProductosGeneral>(
     }
 );
 
+// Índice para acelerar el filtro { Categoria: { $exists: true, $ne: "" } } de getProducts
+ProductosGeneralSchema.index({ Categoria: 1 });
+
 const productosgenerals = model<IProductosGeneral>("productosgenerals", ProductosGeneralSchema);
 
 export default productosgenerals;

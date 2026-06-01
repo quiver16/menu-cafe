@@ -150,6 +150,7 @@ export default function MenuContainer() {
   const [CategoriaAbierta, setCategoriaAbierta] = useState<string | null>(null);
   const [dolar, setDolar] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [quantities, setQuantities] = useState<Record<string, number>>({});
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL as string;
@@ -262,8 +263,9 @@ export default function MenuContainer() {
         if (dolarResponse.data && dolarResponse.data.length > 0) {
           setDolar(dolarResponse.data[0].Factor);
         }
-      } catch (error) {
-        console.error("Error al cargar datos:", error);
+      } catch (err) {
+        console.error("Error al cargar datos:", err);
+        setError("No se pudo conectar con el servidor. Por favor, recarga la página.");
       } finally {
         setLoading(false);
       }
@@ -289,6 +291,20 @@ export default function MenuContainer() {
 
   if (loading) {
     return <Loader />;
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center px-6">
+        <p className="text-amber-400 text-xl font-semibold">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 px-6 rounded-full transition-colors"
+        >
+          Reintentar
+        </button>
+      </div>
+    );
   }
 
   /* ── helper: card de categoría para móvil (acordeón) ── */
